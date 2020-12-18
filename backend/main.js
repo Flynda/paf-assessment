@@ -162,8 +162,7 @@ app.post('/share', upload.single('share-img'), async (req, resp) => {
     client.db(MONGO_DB).collection(MONGO_COLLECTION)
         .insertOne(mongoDoc (req.body, req.file.filename))
     )
-    .then(result => {
-        console.info('insert result: ', result)
+    .then(() => {
         resp.status(200)
         resp.json({message: 'upload successful!'})
         fs.unlink(req.file.path, () => {})
