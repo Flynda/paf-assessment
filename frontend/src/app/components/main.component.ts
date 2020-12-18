@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthenticationService } from '../authentication.service';
 import {CameraService} from '../camera.service';
 import { ShareService } from '../share.service';
@@ -14,7 +15,7 @@ export class MainComponent implements OnInit {
 	shareForm: FormGroup
 	imagePath = '/assets/cactus.png'
 
-	constructor(private cameraSvc: CameraService, private fb: FormBuilder, private shareSvc: ShareService, private authSvc: AuthenticationService) { }
+	constructor(private cameraSvc: CameraService, private fb: FormBuilder, private shareSvc: ShareService, private authSvc: AuthenticationService, private router: Router) { }
 
 	ngOnInit(): void {
 	  if (this.cameraSvc.hasImage()) {
@@ -48,8 +49,12 @@ export class MainComponent implements OnInit {
 		shareData.set('share-img', this.cameraSvc.getImage().imageData)
 		// console.info(this.imagePath)
 		this.shareSvc.upload(shareData)
-			.then(r => r)
-			.catch(err => console.error(err)
-			)
+			.then(() => {
+				this.clear()
+			})
+			.catch(err => {
+				console.error(err)
+				this.router.navigate(['/'])
+			})
 	}
 }

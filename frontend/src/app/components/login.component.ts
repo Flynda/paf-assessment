@@ -35,7 +35,7 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/main'])
       })
       .catch(err => {
-        console.error(err.error.errorMessage)
+        // console.error(err.error)
         this.errorMessage = err.error.errorMessage
       })
   }

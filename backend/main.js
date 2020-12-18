@@ -78,6 +78,21 @@ const authenticate = async (user, pw, resp) => {
 	}
 }
 
+const authenticate2 = (user, pw) => new Promise(
+    async (resolve, reject) => {
+        const pwFromDB = await checkPassword([user])
+        if (!pwFromDB[0].length) {
+            reject('User not in records')
+        }
+        const hashedPW = sha1(pw)
+        if (hashedPW === pwFromDB[0][0]['password']) {
+            resolve({message: 'login successful!'})
+        } else {
+            reject('Password is incorrect!')
+        }
+    }
+)
+
 const readFile = (path) => new Promise(
     (resolve, reject) => 
         fs.readFile(path, (err, buff) => {
@@ -110,6 +125,7 @@ const putObject = (file, buff, s3) => new Promise(
 
 const mongoDoc = (params, image) => {
 	return {
+        user: params.userName,
 		title: params.title,
 		comments: params.comments,
 		image: image,
@@ -123,39 +139,45 @@ app.post('/authentication', express.json(), async (req, resp) => {
 	const user = req.body.userName
 	const password = req.body.password
 	resp.type('application/json')
-	authenticate(user, password, resp)
+    authenticate(user, password, resp)
 })
 
 app.post('/share', upload.single('share-img'), async (req, resp) => {
     console.info(req.body)
-    resp.status(200).end()
-	// const doc = mongoDoc (req.body, req.file.filename)
-
-	// resp.on('finish', () => {
-    //     console.info('>>> response ended')
-    //     // delete the temp file
-    //     fs.unlink(req.file.path, () => {})
-	// })
-	
-	// readFile(req.file.path)
-    //     .then(buff => 
-    //         putObject(req.file, buff, s3)
-    //     )
-    //     .then(() => 
-    //     client.db(DATABASE).collection(COLLECTION)
-    //         .insertOne(doc)
-    //     )
-    //     .then(result => {
-    //         console.info('insert result: ', result)
-    //         resp.status(200)
-    //         resp.json({id: result.ops[0]._id})
-    //     })
-    //     .catch (e =>  {
-    //         console.error('insert error:', e)
-    //         resp.status(500)
-    //         resp.json({ error: e })
-    //     })
+    console.info('img?' , req.file)
+    
+	const doc = mongoDoc (req.body, req.file.filename)
+  
+    authenticate2(req.body.userName, req.body.password)
+    .catch(e => {
+        console.error('invalid credentials: ', e)
+        resp.status(401)
+        resp.json({error: e})
+    })
+    .then(() => 
+        readFile(req.file.path)
+    )
+    .then(buff => 
+        putObject(req.file, buff, s3)
+    )
+    .then(() => 
+    client.db(MONGO_DB).collection(MONGO_COLLECTION)
+        .insertOne(doc)
+    )
+    .then(result => {
+        console.info('insert result: ', result)
+        resp.status(200)
+        resp.json({message: 'upload successful!'})
+        fs.unlink(req.file.path, () => {})
+    })
+    .catch (e =>  {
+        console.error('insert error:', e)
+        resp.status(500)
+        resp.json({ error: e })
+    })
 })
+
+app.use(express.static(__dirname + '/frontend'))
 
 const p0 = (async () => {
     const conn = await pool.getConnection()
@@ -167,7 +189,6 @@ const p0 = (async () => {
 
 const p1 = (async () => {
     await client.connect()
-    client.close()
     return true
 })()
 
