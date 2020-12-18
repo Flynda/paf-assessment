@@ -146,8 +146,6 @@ app.post('/share', upload.single('share-img'), async (req, resp) => {
     console.info(req.body)
     console.info('img?' , req.file)
     
-	const doc = mongoDoc (req.body, req.file.filename)
-  
     authenticate2(req.body.userName, req.body.password)
     .catch(e => {
         console.error('invalid credentials: ', e)
@@ -162,7 +160,7 @@ app.post('/share', upload.single('share-img'), async (req, resp) => {
     )
     .then(() => 
     client.db(MONGO_DB).collection(MONGO_COLLECTION)
-        .insertOne(doc)
+        .insertOne(mongoDoc (req.body, req.file.filename))
     )
     .then(result => {
         console.info('insert result: ', result)
