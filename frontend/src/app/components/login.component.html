@@ -5,8 +5,8 @@
 	</div>
 </div>
 
-<form>
-	<div class="form-group" [formGroup]="loginForm" (ngSubmit)="login()">
+<form [formGroup]="loginForm" (ngSubmit)="login()">
+	<div class="form-group" >
 		<label for="title">Username</label>
 		<input id="title" class="form-control" type="text" placeholder="Username" formControlName="title"
 				[ngClass]="{'is-invalid': errorMessage}">

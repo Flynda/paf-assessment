@@ -10,7 +10,8 @@ import { MainComponent } from './components/main.component';
 import { CaptureComponent } from './components/capture.component';
 import {CameraService} from './camera.service';
 import { LoginComponent } from './components/login.component';
-import { AuthenticationService } from './authenticationtication.service';
+import { AuthenticationService } from './authentication.service';
+import { ShareService } from './share.service';
 
 
 const ROUTES: Routes = [
@@ -34,7 +35,8 @@ const ROUTES: Routes = [
   ],
   providers: [ 
     CameraService,
-    AuthenticationService
+    AuthenticationService,
+    ShareService
   ],
   bootstrap: [AppComponent]
 })
