@@ -6,9 +6,9 @@
 </div>
 
 <form>
-	<div class="form-group">
+	<div class="form-group" [formGroup]="loginForm" (ngSubmit)="login()">
 		<label for="title">Username</label>
-		<input id="title" class="form-control" type="text" placeholder="Username"
+		<input id="title" class="form-control" type="text" placeholder="Username" formControlName="title"
 				[ngClass]="{'is-invalid': errorMessage}">
 		<div class="invalid-feedback" *ngIf="errorMessage">
 			{{ errorMessage }}
@@ -16,12 +16,12 @@
 	</div>
 	<div class="form-group">
 		<label for="password">Password</label>
-		<input type="password" id="password" class="form-control" placeholder="Password"
+		<input type="password" id="password" class="form-control" placeholder="Password" formControlName="password"
 				[ngClass]="{'is-invalid': errorMessage}">
 	</div>
 
 	<div class="d-flex justify-content-end align-items-center mt-4">
-		<button class="btn btn-lg btn-success">
+		<button class="btn btn-lg btn-success" type="submit" [disabled]="loginForm.invalid">
 			<span style="margin-right: 5px !important;">Login</span>
 			<i class="fas fa-door-open"></i>
 		</button>
